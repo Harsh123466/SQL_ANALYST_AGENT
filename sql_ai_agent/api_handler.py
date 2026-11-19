@@ -29,4 +29,3 @@ class GroqAPI:
         content = self.response.choices[0].message.content
 
         return content
-        
