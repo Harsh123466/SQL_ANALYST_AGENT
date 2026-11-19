@@ -4,8 +4,8 @@ from sql_ai_agent.sql_validator import validate_sql
 def generate_sql_node(state, groq):
     """Generate SQL from the user's question."""
 
-    # query = groq.send_prompt(state["question"])
-    query = "SELECT * FROM retail_sales"
+    query = groq.send_prompt(state["question"])
+    # query = "SELECT * FROM retail_sales"
 
     return {
         "query": query,
@@ -35,7 +35,7 @@ def execute_sql_node(state, connection):
 
         history = history + [{
             "attempt": attempt,
-            "query": query,
+            "query": safe_query,
             "status": "success",
             "error": None
         }]
@@ -52,7 +52,7 @@ def execute_sql_node(state, connection):
 
         history = history + [{
             "attempt": attempt,
-            "query": query,
+            "query": safe_query,
             "status": "failed",
             "error": str(e)
         }]

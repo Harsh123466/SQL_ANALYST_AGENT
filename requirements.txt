@@ -4,6 +4,7 @@ duckdb
 
 # Data handling
 pandas
+matplotlib
 
 # LLM and Agent orchestration
 langchain

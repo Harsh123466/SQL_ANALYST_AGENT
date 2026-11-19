@@ -1,5 +1,6 @@
 from openai import OpenAI
 from sql_ai_agent import prompt_handler as ph
+from sql_ai_agent.few_shot_examples import FEW_SHOT_EXAMPLES
 
 
 class GroqAPI:
@@ -15,20 +16,44 @@ class GroqAPI:
         self.system = ph.system_prompt(connection=self.connection, tbl_name=tbl_name)
 
     def send_prompt(self, question):
-        self.user = ph.user_prompt(question=question)
+        messages = [
+            {
+                "role": "system",
+                "content": self.system.system
+            }
+        ]
 
-        self.response = self.client.chat.completions.create(
+        # Add few-shot examples
+        for example in FEW_SHOT_EXAMPLES:
+
+            messages.append({
+                "role": "user",
+                "content": example["question"]
+            })
+
+            messages.append({
+                "role": "assistant",
+                "content": example["sql"].strip()
+            })
+
+        # Add the actual user question
+        messages.append({
+            "role": "user",
+            "content": ph.user_prompt(question=question)
+        })
+
+        response = self.client.chat.completions.create(
             model=self.model,
-            messages=[
-                {"role": "system", "content": self.system.system},
-                {"role": "user", "content": self.user},
-            ],
-            max_completion_tokens=self.max_token
+            messages=messages
         )
 
-        content = self.response.choices[0].message.content
+        content = response.choices[0].message.content
 
-        return content
+        if content is None:
+            raise ValueError("Groq returned an empty response.")
+
+        return content.strip()
+
 
     
     def fix_sql(self, question, wrong_query, error_message):

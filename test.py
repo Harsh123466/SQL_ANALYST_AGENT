@@ -4,6 +4,10 @@ import pandas as pd
 
 from dotenv import load_dotenv
 from sql_ai_agent.sql_agent import SqlAgent
+from sql_ai_agent.chart_generator import generate_chart
+from sql_ai_agent.display import display_result
+from sql_ai_agent.chart_selector import select_chart
+
 
 load_dotenv()
 
@@ -20,8 +24,16 @@ agent = SqlAgent(
 )
 
 # Ask question
-result = agent.ask_question(
-    "Show total sales by product category"
+response = agent.ask_question(
+    "Show the top 5 products by revenue"
 )
 
-print(result)
+display_result(response)
+
+print("\nChart Decision:")
+print(response["chart"])
+
+generate_chart(
+    response["result"],
+    chart_type=response["chart"]["chart_type"]
+)

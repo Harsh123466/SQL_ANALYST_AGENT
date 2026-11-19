@@ -1,7 +1,8 @@
 from sql_ai_agent.api_handler import GroqAPI
 from sql_ai_agent.sql_validator import validate_sql
 from sql_ai_agent.graph_builder import build_sql_graph
-
+from sql_ai_agent.answer_generator import generate_answer
+from sql_ai_agent.chart_selector import select_chart
 
 
 class SqlAgent:
@@ -46,4 +47,25 @@ class SqlAgent:
                 f"SQL execution failed: {final_state['error']}"
             )
 
-        return final_state["result"]
+        result = final_state["result"]
+
+        answer = generate_answer(
+            groq=self.groq,
+            question=question,
+            result=result
+        )
+
+        chart_decision = select_chart(
+            groq=self.groq,
+            question=question,
+            result=result
+        )
+
+        return {
+            "question": question,
+            "sql": final_state["query"],
+            "result": result,
+            "answer": answer,
+            "chart": chart_decision,
+            "execution_history": final_state["execution_history"]
+        }
