@@ -1,0 +1,27 @@
+
+# Database
+duckdb
+
+# Data handling
+pandas
+
+# LLM and Agent orchestration
+langchain
+langchain-core
+langchain-groq
+langgraph
+openai
+
+# Persistent agent state
+langgraph-checkpoint-sqlite
+
+# API
+fastapi
+uvicorn[standard]
+pydantic
+
+# Environment variables
+python-dotenv
+
+# Testing
+pytest
