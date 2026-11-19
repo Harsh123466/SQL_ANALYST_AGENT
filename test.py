@@ -21,7 +21,7 @@ agent = SqlAgent(
 
 # Ask question
 result = agent.ask_question(
-    "Show the first 5 rows from retail_sales"
+    "Show total sales by product category"
 )
 
 print(result)

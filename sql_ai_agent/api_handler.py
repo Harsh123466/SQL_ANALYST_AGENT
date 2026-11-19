@@ -29,3 +29,37 @@ class GroqAPI:
         content = self.response.choices[0].message.content
 
         return content
+
+    
+    def fix_sql(self, question, wrong_query, error_message):
+        correction_prompt = f"""
+        The following SQL query generated an error.
+
+        User question: {question}
+
+        Incorrect SQL:
+        {wrong_query}
+
+        Database error:
+        {error_message}
+
+        Correct the SQL query.
+
+        Return ONLY the corrected SQL query.
+        Do not include explanations or markdown.
+        """
+
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": self.system.system},
+                {"role": "user", "content": correction_prompt}
+            ]
+        )
+
+        content = response.choices[0].message.content
+
+        if not content:
+            raise ValueError("Groq returned an empty SQL correction.")
+
+        return content.strip()
