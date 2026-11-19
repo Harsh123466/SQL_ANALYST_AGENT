@@ -8,3 +8,5 @@ class AgentState(TypedDict):
     error: Optional[str]
     result: Optional[pd.DataFrame]
     retry_count: int
+    status: str
+    execution_history: list

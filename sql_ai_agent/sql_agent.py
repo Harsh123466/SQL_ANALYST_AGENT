@@ -29,10 +29,17 @@ class SqlAgent:
             "query": "",
             "error": None,
             "result": None,
-            "retry_count": 0
+            "retry_count": 0,
+            "status": "pending",
+            "execution_history": []
         }
 
         final_state = self.graph.invoke(initial_state)
+
+        print("\nExecution History:")
+
+        for item in final_state["execution_history"]:
+            print(item)
 
         if final_state["error"]:
             raise Exception(

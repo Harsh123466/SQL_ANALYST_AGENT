@@ -4,8 +4,8 @@ from sql_ai_agent.sql_validator import validate_sql
 def generate_sql_node(state, groq):
     """Generate SQL from the user's question."""
 
-    query = groq.send_prompt(state["question"])
-    # query = "SELECT InvalidColumn FROM retail_sales"
+    # query = groq.send_prompt(state["question"])
+    query = "SELECT * FROM retail_sales"
 
     return {
         "query": query,
@@ -18,21 +18,54 @@ def generate_sql_node(state, groq):
 def execute_sql_node(state, connection):
     """Validate and execute the generated SQL."""
 
+    attempt = state["retry_count"] + 1
+    print(f"\nExecution attempt: {attempt}")
+
+    history = state.get("execution_history", [])
+
     try:
         query = state["query"]
-        validate_sql(query)
 
-        result = connection.execute(query).df()
+        safe_query = validate_sql(query)
+
+        print("Original SQL:", query)
+        print("Validated SQL:", safe_query)
+
+        result = connection.execute(safe_query).df()
+
+        history = history + [{
+            "attempt": attempt,
+            "query": query,
+            "status": "success",
+            "error": None
+        }]
+
+        print("SQL executed successfully!")
 
         return{
             "result":result,
-            "error":None
+            "error":None,
+            "status": "success",
+            "execution_history": history
         }
     except Exception as e:
+
+        history = history + [{
+            "attempt": attempt,
+            "query": query,
+            "status": "failed",
+            "error": str(e)
+        }]
+
+        print(f"SQL execution failed: {e}")
+
         return {
             "result": None,
-            "error": str(e)
+            "error": str(e),
+            "status": "failed",
+            "execution_history": history
         }
+
 
 
 def correct_sql_node(state, groq):
@@ -43,7 +76,6 @@ def correct_sql_node(state, groq):
         wrong_query=state["query"],
         error_message=state["error"]
     )
-    print(f"attempt: {state['retry_count']+1}")
 
     return {
         "query": corrected_query,

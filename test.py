@@ -8,7 +8,7 @@ from sql_ai_agent.sql_agent import SqlAgent
 load_dotenv()
 
 # Create DuckDB connection
-db = duckdb.connect("sales.duckdb")
+db = duckdb.connect("sales.duckdb", read_only=True)
 
 # Initialize Groq API
 agent = SqlAgent(
